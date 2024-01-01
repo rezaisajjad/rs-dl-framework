@@ -11,16 +11,18 @@ coef = Tensor(np.array([-7, +3, -9]))
 y = X @ coef + 5
 
 # TODO: define a linear layer using Linear() class  
-l = ...
+l = Linear(3,1)
+
 
 # TODO: define an optimizer using SGD() class 
-optimizer = ....
+optimizer = SGD([l],learning_rate=0.1)
 
 # TODO: print weight and bias of linear layer
+print(l.weight,end="\n")
+print(l.bias,end="\n\n\n")
 
-
-learning_rate = ...
-batch_size = ...
+learning_rate = 0.1
+batch_size = 20
 
 for epoch in range(100):
     
@@ -30,27 +32,33 @@ for epoch in range(100):
         end = start + batch_size
 
 
-        print(start, end)
+        #print(start, end)
 
         inputs = X[start:end]
 
         # TODO: predicted
-        predicted = ...
-
+        predicted = l(inputs)
         actual = y[start:end]
         actual.data = actual.data.reshape(batch_size, 1)
+
         # TODO: calcualte MSE loss
-        
+        loss = loss_functions.MeanSquaredError(actual, predicted)
+
         # TODO: backward
         # hint you need to just do loss.backward()
+        optimizer.zero_grad()
+        grad = np.ones(loss.shape)
+        loss.backward(grad)
 
 
         # TODO: add loss to epoch_loss
-        epoch_loss += ...
+        epoch_loss += loss.data.sum()
 
 
         # TODO: update w and b using optimizer.step()
+        optimizer.step()
         
 
 # TODO: print weight and bias of linear layer
- 
+print(l.weight,end="\n")
+print(l.bias,end="\n")
