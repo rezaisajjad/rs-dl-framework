@@ -1,15 +1,26 @@
 from rsdl import Tensor, Dependency
 import numpy as np
+from typing import List
+
 
 def Sigmoid(t: Tensor) -> Tensor:
     # TODO: implement sigmoid function
     # hint: you can do it using function you've implemented (not directly define grad func)
-    return None
+    shape = t.shape
+    numerator = Tensor(np.ones(shape))
+    denominator = Tensor(np.ones(shape)) + ((-t).exp())
+    denominator = denominator**-1
+    return numerator * denominator
+
 
 def Tanh(t: Tensor) -> Tensor:
     # TODO: implement tanh function
     # hint: you can do it using function you've implemented (not directly define grad func)
-    return None
+    numerator = t.exp() - (-t).exp()
+    denominator = t.exp() + (-t).exp()
+    denominator = denominator**-1
+    return numerator * denominator
+
 
 def Softmax(t: Tensor) -> Tensor:
     # TODO: implement softmax function
@@ -18,40 +29,47 @@ def Softmax(t: Tensor) -> Tensor:
     #        1. implement sum by axis
     #        2. using matrix mul to do it :) (recommended)
     # hint: a/b = a*(b^-1)
-    return None
+
+    _ones = np.ones((t.shape[-1], 1))
+    _t = t.exp()
+    sum = _t @ _ones
+    sum = sum**-1
+    return _t * sum
+
 
 def Relu(t: Tensor) -> Tensor:
     # TODO: implement relu function
 
     # use np.maximum
-    data = ...
+    data = np.where(t.data > 0, t.data, 0)
 
-    req_grad = ...
+    req_grad = t.requires_grad
     if req_grad:
+
         def grad_fn(grad: np.ndarray):
-            # use np.where
-            return None
-        
+            return np.where(t.data > 0, grad, 0)
+
         depends_on = [Dependency(t, grad_fn)]
     else:
         depends_on = []
     return Tensor(data=data, requires_grad=req_grad, depends_on=depends_on)
 
 
-def LeakyRelu(t: Tensor,leak=0.05) -> Tensor:
+def LeakyRelu(t: Tensor, leak=0.05) -> Tensor:
     """
-    fill 'data' and 'req_grad' and implement LeakyRelu grad_fn 
+    fill 'data' and 'req_grad' and implement LeakyRelu grad_fn
     hint: use np.where like Relu method but for LeakyRelu
     """
     # TODO: implement leaky_relu function
-    
-    data = ...
-    
-    req_grad = ...
+
+    data = np.where(t.data > 0, t.data, leak * t.data)
+
+    req_grad = t.requires_grad
     if req_grad:
+
         def grad_fn(grad: np.ndarray):
-            return None
-        
+            return np.where(t.data > 0, grad, grad * leak)
+
         depends_on = [Dependency(t, grad_fn)]
     else:
         depends_on = []
